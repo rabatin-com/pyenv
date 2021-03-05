@@ -1,2 +1,3 @@
-# pyenv
-Python Virtual Environment Helper
+# Python Virtual Environment Helper
+
+Helps with managing virtual environments
