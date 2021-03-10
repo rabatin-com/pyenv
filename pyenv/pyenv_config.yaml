@@ -1,0 +1,10 @@
+# Python VENV
+
+venv_paths:
+- D:/pyvenv
+- ~/.venv
+
+cache_directory: ~/.venv_data
+
+exec_path: ~/bin
+

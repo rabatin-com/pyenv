@@ -1,18 +1,19 @@
 @echo off
 
+rem setLocal EnableDelayedExpansion
+
 SET HOMEBIN=%HOMEDRIVE%%HOMEPATH%\bin
-SET PYENV_PY=%HOMEBIN%\pyenv.py
+SET PYENV_PY=pyenv.py
 
 
 if "%1"=="" (
   echo ===================================================
   echo Python Virtual Environment Helper
   echo ===================================================
-  echo act [env name] for activating an environment
-  echo create [env name] for activating an environment
-  echo deact [env name] for deactivating an environment
-  echo list for listing environments
-  echo version for listing python versions per environment
+  echo --list Lists all environments
+  echo --long_list Lists env
+  echo --act [env name] for activating an environment
+  echo --deact for deactivating an environment
   GOTO :END
   )
 
@@ -20,33 +21,38 @@ set COMMAND=%1
 set VENV=%2
 
 
-if "%COMMAND%"=="act" (
-   echo Activate %VENV%
-   V:\%VENV%\Scripts\activate.bat
+SET TEMP_BAT=%HOMEBIN%\__tmp__.bat
+
+echo "dummy" > %TEMP_BAT%
+del /q  %TEMP_BAT%
+
+
+if "%COMMAND%"=="--act" (
+   python %PYENV_PY% --show_activate_path %VENV% 1>%TEMP_BAT% 2>%HOMEBIN%\err.txt
+   CALL %TEMP_BAT%
 )
 
-if "%COMMAND%"=="list" (
-  python %PYENV_PY% list
+if "%COMMAND%"=="--deact" (
+   %VIRTUAL_ENV%\Scripts\deactivate.bat
+)
+
+if "%COMMAND%"=="--select" (
+   python %PYENV_PY% --select %TEMP_BAT% 2>%HOMEBIN%\err.txt
+   CALL %TEMP_BAT%
+)
+
+
+if "%COMMAND%"=="--list" (
+  python %PYENV_PY% --list
+)
+
+if "%COMMAND%"=="--long_list" (
+  python %PYENV_PY% --long_list
 )
 
 if "%COMMAND%"=="create" (
   python -m venv V:\%VENV%
 )
 
-
-if "%COMMAND%"=="version" (
-    python %PYENV_PY% list > %HOMEBIN%\out.txt
-    for /f "delims=" %%a in (%HOMEBIN%\out.txt) DO (
-      V:\%%a\Scripts\python.exe --version > %HOMEBIN%\out2.txt
-      SET /p xxVERSION=<%HOMEBIN%\out2.txt
-      echo %%a: %xxVERSION%
-    )
-    del %HOMEBIN%\out.txt
-    del %HOMEBIN%\out2.txt
-)
-
-if "%COMMAND%"=="deact" (
-   V:\%VENV%\Scripts\deactivate.bat
-)
 
 :END
