@@ -3,7 +3,7 @@
 rem setLocal EnableDelayedExpansion
 
 SET HOMEBIN=%HOMEDRIVE%%HOMEPATH%\bin
-SET PYENV_PY=pyenv.py
+SET PYENV_PY=%HOMEBIN%\pyenv.py
 
 
 if "%1"=="" (
@@ -41,7 +41,6 @@ if "%COMMAND%"=="--select" (
    CALL %TEMP_BAT%
 )
 
-
 if "%COMMAND%"=="--list" (
   python %PYENV_PY% --list
 )
@@ -53,6 +52,5 @@ if "%COMMAND%"=="--long_list" (
 if "%COMMAND%"=="create" (
   python -m venv V:\%VENV%
 )
-
 
 :END
