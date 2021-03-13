@@ -9,7 +9,8 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-
+import uuid
+import shutil
 import yaml
 
 CONFIGFILE = Path('pyenv_config.yaml')
@@ -76,6 +77,11 @@ if __name__ == '__main__':
                       help='Create an environment in the default location',
                       action='store')
 
+  parser.add_argument('--delete', nargs=1,
+                      help='Deletes environment',
+                      action='store')
+
+
   parser.add_argument('--show_config', help='Shows Config', action='store_true')
 
   parser.add_argument('--show_activate_path', nargs=1, help='Prints Activate Path',
@@ -112,6 +118,17 @@ if __name__ == '__main__':
     if completed.returncode != 0:
       print(f'Error in executing command {cmd}', file=sys.stderr)
       print(f'{completed.stderr}', file=sys.stderr)
+
+  if app_args.delete:
+    venv_name = app_args.delete[0]
+    if venv_name not in venv.vens:
+      print(f'Virtual Environment {venv_name} does not exist', file=sys.stderr)
+      exit(1)
+    archive_path=Path(Path(app_config['default_venv_path']) / Path('Archive') / f'{venv_name}-{uuid.uuid4()}')
+    archive_path.mkdir(parents=True,exist_ok=True)
+    shutil.move(str(venv.vens[venv_name]['path']), str(archive_path))
+    print(f'Removed {venv_name} into Archive')
+
 
   if app_args.select:
     envlist = []
