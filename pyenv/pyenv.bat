@@ -12,6 +12,7 @@ if "%1"=="" (
   echo ===================================================
   echo --list Lists all environments
   echo --long_list Lists env
+  echo --create [env name] create an environment
   echo --act [env name] for activating an environment
   echo --deact for deactivating an environment
   GOTO :END
@@ -43,6 +44,10 @@ if "%COMMAND%"=="--select" (
 
 if "%COMMAND%"=="--list" (
   python %PYENV_PY% --list
+)
+
+if "%COMMAND%"=="--create" (
+  python %PYENV_PY% --create %VENV%
 )
 
 if "%COMMAND%"=="--long_list" (

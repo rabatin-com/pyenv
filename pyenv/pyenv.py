@@ -11,6 +11,7 @@ import json
 import yaml
 import argparse
 import os
+import subprocess
 
 CONFIGFILE = Path('pyenv_config.yaml')
 
@@ -45,12 +46,12 @@ if __name__ == '__main__':
   for loc in configfilelocations:
     if Path(loc/CONFIGFILE).is_file():
       configfile = Path(loc/CONFIGFILE)
-      # print(f'Using Config file {configfile.absolute()}')
+      break
 
   with open(configfile, 'r') as fp:
     app_config = yaml.load(fp, Loader=yaml.FullLoader)
     # print(app_config)
-  app_config['venv_paths'] = list(map(lambda x: str(Path(x).expanduser()), app_config['venv_paths']))
+  app_config['venv_paths'] = list(set(map(lambda x: str(Path(x).expanduser()), app_config['venv_paths']+[app_config['default_venv_path']])))
 
   venv = VenvEnv()
   for p in app_config['venv_paths']:
@@ -66,6 +67,9 @@ if __name__ == '__main__':
   parser.add_argument('--long_list', help='Lists all environments', action='store_true')
 
   parser.add_argument('--select', nargs=1, help='Select from environments', action='store')
+
+  parser.add_argument('--create', nargs=1, help='Create an environment in the default location',
+                      action='store')
 
   parser.add_argument('--show_config', help='Shows Config', action='store_true')
 
@@ -92,6 +96,18 @@ if __name__ == '__main__':
     for k, v in venv.vens.items():
       print(k, ' Version:', v['version'], ' Location:', v['path'])
 
+  if app_args.create:
+    venv_name = app_args.create[0]
+    if venv_name in venv.vens:
+      print(f'Virtual Environment {venv_name} already exists',file=sys.stderr)
+      exit(1)
+    venv_full_path = Path(Path(app_config['default_venv_path']) / venv_name)
+    cmd = f'python -m venv {str(venv_full_path)}'
+    completed = subprocess.run(cmd)
+    if completed.returncode != 0:
+      print(f'Error in executing command {cmd}', file=sys.stderr)
+      print(f'{completed.stderr}', file=sys.stderr)
+
 
   if app_args.select:
     envlist = []
@@ -103,6 +119,7 @@ if __name__ == '__main__':
     activate_path = Path(Path(venv.vens[envlist[int(selection)]]['path']) / 'Scripts' / 'activate.bat')
     with open(app_args.select[0], 'w') as fp:
       print(activate_path, file=fp)
+
 
 
 
