@@ -59,8 +59,4 @@ if "%COMMAND%"=="--long_list" (
   python %PYENV_PY% --long_list
 )
 
-if "%COMMAND%"=="create" (
-  python -m venv V:\%VENV%
-)
-
 :END
