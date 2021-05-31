@@ -15,6 +15,7 @@ if "%1"=="" (
   echo --create [env name] creates an environment
   echo --delete [env name] deletes an environment
   echo --act [env name] for activating an environment
+  echo --select Create list to select an environment for activation
   echo --deact for deactivating an environment
   GOTO :END
   )
