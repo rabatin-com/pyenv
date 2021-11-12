@@ -17,7 +17,7 @@ if "%1"=="" (
   echo --delete [env name] deletes an environment
   echo --act [env name] for activating an environment
   echo --select Create list to select an environment for activation
-  echo --deact for deactivating an environment
+  echo --deact for deactivating the current environment
   echo --show_config shows the configuration data
   GOTO :END
   )
