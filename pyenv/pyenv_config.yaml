@@ -3,8 +3,9 @@
 venv_paths:
 - ~/.venv
 - D:/pyvenv
+- C:/Users/x-squared/PythonVirtualEnvirons
 
-default_venv_path: D:/pyvenv
+default_venv_path: C:/Users/x-squared/PythonVirtualEnvirons
 
 cache_directory: ~/.venv_data
 

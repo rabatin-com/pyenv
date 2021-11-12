@@ -15,6 +15,7 @@ import yaml
 
 CONFIGFILE = Path('pyenv_config.yaml')
 
+VERSION ='1.0'
 
 class VenvEnv:
 
@@ -22,8 +23,12 @@ class VenvEnv:
     self.vens = {}
 
   def add_from_path(self, venvpath_root: Path):
+    venvpath_root = Path(venvpath_root)
+    if not venvpath_root.is_dir():
+      return
     loaded_paths = [x for x in Path(venvpath_root).iterdir()]
     for p in loaded_paths:
+      # print(p)
       if Path(p / 'pyvenv.cfg').is_file():
         with open(Path(p / 'pyvenv.cfg'), 'r') as fp:
           cfg = fp.readlines()
@@ -42,7 +47,7 @@ if __name__ == '__main__':
 
   configfilelocations = [Path('.'), Path('~/.venv'), Path('~/.pyenv'), Path('~'),
                          Path('~/bin')]
-  configfilelocations = list(map(lambda x: x.expanduser(), configfilelocations))
+  configfilelocations = list(map(lambda x: str(x.expanduser()), configfilelocations))
 
   configfile = None
 
@@ -50,6 +55,7 @@ if __name__ == '__main__':
     if Path(loc / CONFIGFILE).is_file():
       configfile = Path(loc / CONFIGFILE)
       break
+
 
   with open(configfile, 'r') as fp:
     app_config = yaml.load(fp, Loader=yaml.FullLoader)
@@ -65,6 +71,8 @@ if __name__ == '__main__':
                                    usage='Print -h for help',
                                    formatter_class=argparse.RawTextHelpFormatter
                                    )
+
+  parser.add_argument('--version', help='Displays Version Information', action='store_true')
 
   parser.add_argument('--list', help='Lists all environments', action='store_true')
 
@@ -88,6 +96,9 @@ if __name__ == '__main__':
                       action='store')
 
   app_args = parser.parse_args()
+
+  if app_args.version:
+    print('VERSION', VERSION)
 
   if app_args.show_config:
     print(f'Looking for {CONFIGFILE} in {configfilelocations}')
@@ -139,5 +150,10 @@ if __name__ == '__main__':
     selection = input('Enter your selection: ')
     activate_path = Path(
       Path(venv.vens[envlist[int(selection)]]['path']) / 'Scripts' / 'activate.bat')
-    with open(app_args.select[0], 'w') as fp:
-      print(activate_path, file=fp)
+    created_outputfile = app_args.select[0]
+    print(created_outputfile, activate_path)
+    with open(created_outputfile, 'w') as f:
+      f.write(str(activate_path))
+
+    # with open(app_args.select[0], 'w') as fp:
+    #   print(activate_path, file=fp)
