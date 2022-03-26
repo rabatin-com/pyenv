@@ -1,3 +1,6 @@
-# Python Virtual Environment Helper
+# HEBI Python Virtual Environment Helper
 
-Helps with managing virtual environments
+Makes it easier to manage virtual environments.
+
+Will extend to provide some package management capabilities.
+

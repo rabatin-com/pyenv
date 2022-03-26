@@ -4,24 +4,25 @@
 # Copyright Arthur Rabatin. See www.rabatin.com
 # ---------------------------------------------
 
-import platform
 import argparse
 import json
+import platform
+import shutil
 import subprocess
 import sys
-from pathlib import Path
 import uuid
-import shutil
+from pathlib import Path
+
 import yaml
 
-CONFIGFILE = Path('pyenv_config.yaml')
+CONFIGFILE = Path('hebi_config.yaml')
 
 PYTHON_EXEC = '/usr/bin/python3.8'
 
-VERSION ='1.0'
+VERSION = '1.0'
 
 
-def activate_on_linux(environment_name:str):
+def activate_on_linux(environment_name: str):
   if not OSPlatform().is_linux():
     raise Exception('Platform is not Linux')
   activate_path = Path(Path(venv.vens[envname]['path']) / 'bin' / 'activate')
@@ -38,7 +39,7 @@ def activate_on_linux(environment_name:str):
     f.write(str(activate_path))
 
 
-def read_deactive_command(activate_file:Path):
+def read_deactive_command(activate_file: Path):
   if not activate_file.is_file():
     raise Exception(f'Does not exist {activate_file}')
   with open(activate_file, 'r') as f:
@@ -51,14 +52,14 @@ def read_deactive_command(activate_file:Path):
     if start_deactivate >= 0:
       if l.startswith('}'):
         end_deactivate = idx
-  return rl[start_deactivate:end_deactivate+1]
+  return rl[start_deactivate:end_deactivate + 1]
+
 
 class BashRC:
-
   HEBI_BEGIN = '# >>> HEBI Initialization >>>'
   HEBI_END = '# <<< HEBI Initialization <<<'
 
-  def __init__(self, file_to_source:Path):
+  def __init__(self, file_to_source: Path):
     self.source_file = Path(file_to_source).expanduser()
     self.bashrc = Path('~/.bashrc').expanduser()
     with open(self.bashrc, 'r') as f:
@@ -70,18 +71,18 @@ class BashRC:
         self.hebi_start = idx
       if line.startswith(BashRC.HEBI_END):
         self.hebi_end = idx
-    self.has_hebi_info =  ((self.hebi_end - self.hebi_start) >= 2)
+    self.has_hebi_info = ((self.hebi_end - self.hebi_start) >= 2)
     # print(self.hebi_start, self.hebi_end, self.has_hebi_info)
 
-  def write_hebi_info(self, activate_pathfile:Path):
+  def write_hebi_info(self, activate_pathfile: Path):
     if self.has_hebi_info:
       raise Exception('Already has HEBI Info')
-    with open(self.bashrc, 'a') as f:
-      f.write('\n\n')
-      f.write('# *** DO NOT MODIFY THE HEBI INFORMATION MANUALLY ***\n')
-      f.write(f'{BashRC.HEBI_BEGIN}\n')
-      f.write(f'source `cat {self.source_file}`\n')
-      f.write(f'# Below the custom adoption of the deactivate command\n')
+    with open(self.bashrc, 'a') as bashrc_f:
+      bashrc_f.write('\n\n')
+      bashrc_f.write('# *** DO NOT MODIFY THE HEBI INFORMATION MANUALLY ***\n')
+      bashrc_f.write(f'{BashRC.HEBI_BEGIN}\n')
+      bashrc_f.write(f'source `cat {self.source_file}`\n')
+      bashrc_f.write(f'# Below the custom adoption of the deactivate command\n')
       deactive_text = read_deactive_command(activate_pathfile)
       if deactive_text[-1:][0] != '}\n':
         raise Exception('deactive_text unexpected' + str(deactive_text))
@@ -91,11 +92,10 @@ class BashRC:
       deactive_text.append(f'    echo \"{dummy}\" > {self.source_file}\n')
       deactive_text.append('# Customization End\n')
       deactive_text.append('}\n')
-      for l in deactive_text:
-        f.write(l)
-      f.write(f'{BashRC.HEBI_END}\n')
-      f.write('\n\n')
-
+      for code_line in deactive_text:
+        bashrc_f.write(code_line)
+      bashrc_f.write(f'{BashRC.HEBI_END}\n')
+      bashrc_f.write('\n\n')
 
 
 class OSPlatform:
@@ -145,7 +145,7 @@ class VenvEnv:
 
 if __name__ == '__main__':
 
-  configfilelocations = [Path('.'), Path('~/.venv'), Path('~/.pyenv'), Path('~'),
+  configfilelocations = [Path('.'), Path('~/.venv'), Path('~/.ar3_hebi'), Path('~'),
                          Path('~/bin')]
   configfilelocations = list(map(lambda x: str(x.expanduser()), configfilelocations))
 
@@ -155,7 +155,6 @@ if __name__ == '__main__':
     if Path(loc / CONFIGFILE).is_file():
       configfile = Path(loc / CONFIGFILE)
       break
-
 
   with open(configfile, 'r') as fp:
     app_config = yaml.load(fp, Loader=yaml.FullLoader)
@@ -172,7 +171,8 @@ if __name__ == '__main__':
                                    formatter_class=argparse.RawTextHelpFormatter
                                    )
 
-  parser.add_argument('--version', help='Displays Version Information', action='store_true')
+  parser.add_argument('--version', help='Displays Version Information',
+                      action='store_true')
 
   parser.add_argument('--list', help='Lists all environments', action='store_true')
 
@@ -204,7 +204,7 @@ if __name__ == '__main__':
 
   if app_args.version:
     print('HEBI VERSION', VERSION)
-    print('Platform:', platform.version(), '\nPython Version:',platform.python_version())
+    print('Platform:', platform.version(), '\nPython Version:', platform.python_version())
 
   if app_args.show_config:
     print(f'Looking for {CONFIGFILE} in {configfilelocations}')
@@ -243,7 +243,8 @@ if __name__ == '__main__':
       exit(1)
     venv_full_path = Path(Path(app_config['default_venv_path']) / venv_name)
     cmd = f'{PYTHON_EXEC} -m venv {str(venv_full_path.expanduser())}'
-    completed = subprocess.run([PYTHON_EXEC, '-m', 'venv', str(venv_full_path.expanduser())])
+    completed = subprocess.run(
+      [PYTHON_EXEC, '-m', 'venv', str(venv_full_path.expanduser())])
     if completed.returncode != 0:
       print(f'Error in executing command {cmd}', file=sys.stderr)
       print(f'{completed.stderr}', file=sys.stderr)
@@ -253,8 +254,9 @@ if __name__ == '__main__':
     if venv_name not in venv.vens:
       print(f'Virtual Environment {venv_name} does not exist', file=sys.stderr)
       exit(1)
-    archive_path=Path(Path(app_config['default_venv_path']) / Path('Archive') / f'{venv_name}-{uuid.uuid4()}').expanduser()
-    archive_path.mkdir(parents=True,exist_ok=True)
+    archive_path = Path(Path(app_config['default_venv_path']) / Path(
+      'Archive') / f'{venv_name}-{uuid.uuid4()}').expanduser()
+    archive_path.mkdir(parents=True, exist_ok=True)
     shutil.move(str(venv.vens[venv_name]['path']), str(archive_path))
     print(f'Removed {venv_name} into Archive')
 
