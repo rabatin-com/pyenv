@@ -3,7 +3,7 @@
 rem setLocal EnableDelayedExpansion
 
 SET HOMEBIN=%HOMEDRIVE%%HOMEPATH%\bin
-SET PYENV_PY=%HOMEBIN%\pyenv.py
+SET PYENV_PY=%HOMEBIN%\hebi.py
 rem SET PYENV_PY=pyenv.py
 
 if "%1"=="" (

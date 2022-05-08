@@ -2,12 +2,11 @@
 
 venv_paths:
 - ~/venv
-- D:/pyvenv
-- C:/Users/x-squared/PythonVirtualEnvirons
+- E:/py_venv
 
-default_venv_path: ~/venv
+default_venv_path: E:/py_venv
 
-cache_directory: ~/.venv_data
+cache_directory: E:/py_venv/data
 
 exec_path: ~/bin
 

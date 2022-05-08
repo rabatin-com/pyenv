@@ -15,9 +15,35 @@ from pathlib import Path
 
 import yaml
 
+class OSPlatform:
+
+  def __init__(self):
+    self._is_linux = False
+    self._is_windows = False
+    if sys.platform.startswith('linux'):
+      self._is_linux = True
+    elif sys.platform.startswith('win'):
+      self._is_windows = True
+    else:
+      raise Exception(f'Unknown Platform {sys.platform}')
+
+  def is_linux(self):
+    return self._is_linux
+
+  def is_windows(self):
+    return self._is_windows
+
+
 CONFIGFILE = Path('hebi_config.yaml')
 
-PYTHON_EXEC = '/usr/bin/python3.8'
+if OSPlatform().is_linux():
+  PYTHON_EXEC = '/usr/bin/python3.8'
+else:
+  import warnings
+  warnings.simplefilter('ignore', category=DeprecationWarning)
+  from distutils import spawn
+  PYTHON_EXEC = spawn.find_executable('python.exe')
+
 
 VERSION = '1.0'
 
@@ -98,23 +124,6 @@ class BashRC:
       bashrc_f.write('\n\n')
 
 
-class OSPlatform:
-
-  def __init__(self):
-    self._is_linux = False
-    self._is_windows = False
-    if sys.platform.startswith('linux'):
-      self._is_linux = True
-    elif sys.platform.startswith('win'):
-      self._is_windows = True
-    else:
-      raise Exception(f'Unknown Platform {sys.platform}')
-
-  def is_linux(self):
-    return self._is_linux
-
-  def is_windows(self):
-    return self._is_windows
 
 
 class VenvEnv:
