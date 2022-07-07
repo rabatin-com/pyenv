@@ -1,4 +1,7 @@
 
+
+
+
 SET HOMEBIN=%HOMEDRIVE%%HOMEPATH%\bin
 
 copy ar3_hebi\*.bat %HOMEBIN%
